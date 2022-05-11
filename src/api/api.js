@@ -1,4 +1,3 @@
-
 /* https://zl3m4qq0l9.execute-api.ap-northeast-2.amazonaws.com/dev
 [
   {
@@ -54,35 +53,39 @@ image(path앞에 /가 있을수도, 없을수도있음. 잘 조합하기)
 https://fe-dev-matching-2021-03-serverlessdeploymentbuck-t3kpj3way537.s3.ap-northeast-2.amazonaws.com/public/${node.filePath}
 
 */
-export default class Api{
-    constructor(){
-        this.baseUrl="https://zl3m4qq0l9.execute-api.ap-northeast-2.amazonaws.com/dev";
-        this.imageUrl="https://fe-dev-matching-2021-03-serverlessdeploymentbuck-t3kpj3way537.s3.ap-northeast-2.amazonaws.com/public";
-    }
+const BASE_URL =
+	"https://zl3m4qq0l9.execute-api.ap-northeast-2.amazonaws.com/dev";
+const IMGAE_URL =
+	"https://fe-dev-matching-2021-03-serverlessdeploymentbuck-t3kpj3way537.s3.ap-northeast-2.amazonaws.com/public";
 
-    async fetchDirectory(path){
-        const res = await fetch(`${this.baseUrl}/${path}`,{
-            method: "GET",
-            mode:"cors",
-            cache: "default",
-        });
+export const fetchDirectory = async (path = "") => {
+	const res = await fetch(`${BASE_URL}/${path}`, {
+		method: "GET",
+		mode: "cors",
+		cache: "default",
+	});
 
-        if(res.ok){
-            const data = await res.json();
-            return data;
-        } else {
-            const error = await res.json();
-            throw error;
-        }
-    }
+	if (res.ok) {
+		const data = await res.json();
+		return data;
+	} else {
+		const error = await res.json();
+		throw error;
+	}
+};
 
-    async fetchFile(path){
-        const res = await fetch(`${this.imageUrl}/${path}`,{
-            method: "GET",
-            mode:"cors",
-            cache: "default",
-        });
+export const fetchFile = async (path) => {
+	const res = await fetch(`${IMGAE_URL}/${path}`, {
+		method: "GET",
+		mode: "cors",
+		cache: "default",
+	});
 
-        console.log(res);
-    }
-}
+	if (res.ok) {
+		const data = await res.json();
+		return data;
+	} else {
+		const error = await res.json();
+		throw error;
+	}
+};

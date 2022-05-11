@@ -17,54 +17,58 @@
 */
 import Component from "../component.js";
 import NodeComponent from "../Node/Node.js";
+import {fetchDirectory, fetchFile} from "../../api/api.js";
 
-export default class NodesComponent extends Component{
-    constructor(root,dataList,isRoot,currentPath, fetchCallback){
-        super(`
-        <div class="Nodes"></div>
-        `)
-        root.appendChild(this.element);
+export default class NodesComponent extends Component {
+	// root,nodeList,path,fetchCallback
+	constructor({root, initState, onClick}) {
+		super(`<div class="Nodes"></div>`);
 
-        this.dataList = dataList;
-        this.isRoot=isRoot;
-        this.currentPath=currentPath;
-        this.fetchCallback = fetchCallback;
-        this.render();
-    }
+		this.onClick = onClick;
+		root.appendChild(this.element);
 
-    render(){
-        const handleFileClick=(fileName)=>{
-            // fileName으로 이미지 모달 띄우기
-        }
+		this.state = initState;
+		// this.nodes = async () => {
+		// 	await fetchDirectory();
+		// };
+		this.render();
+	}
 
-        const handleDirectoryClick=(DirName)=>{
-            // DirName으로 펫치하긔
-            this.fetchCallback(DirName);
-        }
+	setState(newState) {
+		this.state = newState;
+		this.render();
+	}
 
-        const handlePrevClick=()=>{
-            // currentPath 에서 마지막 /날리고 펫치하긔
-            const prevPath = this.currentPath.split("/").slice(0,-1).join("");
-            this.fetchCallback(prevPath);
-        }
+	render() {
+		const handlePrevClick = async () => {
+			const prevPath = this.state.path.slice(0, -1).join("/");
+			await fetchDirectory(prevPath);
+		};
 
-        if(!this.isRoot){
-            const node = new NodeComponent("PREV",null,handlePrevClick);
-            node.attachTo("afterbegin",this.element);
-        }
-
-        this.dataList?.forEach((data)=>{
-            if(data.type === "DIRECTORY"){
-                const node = new NodeComponent("DIRECTORY",data,handleDirectoryClick);
-                node.attachTo("beforeend",this.element);
-            }else if(data.type === "FILE"){
-                const node = new NodeComponent("FILE",data,handleFileClick);
-                node.attachTo("beforeend",this.element);
-            }else{
-                throw Error("data type mismatched.")
-            }
-        })
-    }
-
-    
+		// if (this.state.path) {
+		// 	const node = new NodeComponent({
+		// 		node: null,
+		// 		onClick: handlePrevClick,
+		// 	});
+		// 	node.attachTo("afterbegin", this.element);
+		// }
+		this.element.innerHTML = "";
+		this.state.nodes.forEach((nodeData) => {
+			if (nodeData.type === "DIRECTORY") {
+				const node = new NodeComponent({
+					initState: {node: nodeData},
+					onClick: this.onClick,
+				});
+				node.attachTo("beforeend", this.element);
+			} else if (nodeData.type === "FILE") {
+				const node = new NodeComponent({
+					initState: {node: nodeData},
+					onClick: this.onClick,
+				});
+				node.attachTo("beforeend", this.element);
+			} else {
+				throw Error("node type mismatched.");
+			}
+		});
+	}
 }

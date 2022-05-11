@@ -4,29 +4,28 @@ type 3개중에 한개로 렌더링.
 */
 import Component from "../component.js";
 
-export default class NodeComponent extends Component{
-    constructor(type,data, onClick){
-        super(`<div class="Node"></div>`);
+export default class NodeComponent extends Component {
+	constructor({initState, onClick}) {
+		super(`<div class="Node"></div>`);
+		this.state = initState;
+		this.element.addEventListener("click", () => {
+			onClick(this.state.node);
+		});
+		this.render();
+	}
 
-        this.element.addEventListener("click",()=>{
-            onClick(data.id);
-        });
-        this.title=data.name;
-
-        switch(type){
-            case "FILE":
-                this.element.innerHTML=`
-                    <img src="./assets/file.png" alt="사진"></img>
-                    <div class="title">${this.title}</div>`;
-                break;
-            case "DIRECTORY":
-                this.element.innerHTML=`
-                    <img src="./assets/directory.png" alt="파일"></img>
-                    <div class="title">${this.title}</div>`;
-                break;
-            default: 
-                throw Error("Node type mismatched.");
-        }       
-    }
+	render() {
+		console.log(this.state);
+		if (this.state.node.type === "FILE") {
+			this.element.innerHTML = `
+            <img src="./assets/file.png" alt="사진"></img>
+            <div class="title">${this.state.node.name}</div>`;
+		} else if (this.state.node.type === "DIRECTORY") {
+			this.element.innerHTML = `
+            <img src="./assets/directory.png" alt="파일"></img>
+            <div class="title">${this.state.node.name}</div>`;
+		} else {
+			throw Error("Node type mismatched!");
+		}
+	}
 }
-

@@ -1,30 +1,65 @@
 import NodesComponent from "./components/Nodes/Nodes.js";
 import BreadCrumbComponent from "./components/BreadCrumb/BreadCrumb.js";
-import Api from "./api/api.js";
+import {fetchDirectory} from "./api/api.js";
 
-export default class App{
-    constructor(root){
-        this.root=root;
-        this.dataList= [];
-        this.api=new Api();
-        this.fetchData("");
-    }
+export default function App(root) {
+	this.root = root;
+	this.state = {
+		path: ["root"],
+		nodes: [],
+	};
 
-    render(){
-      this.breadCrumb = new BreadCrumbComponent(this.root);
-      this.nodeContainer = new NodesComponent(this.root,this.dataList,true,this.path, this.fetchData);
-    }
+	const breadCrumb = new BreadCrumbComponent({
+		root: this.root,
+		initState: {path: this.state.path},
+	});
 
-    async fetchData(path){
-      try{
-        this.dataList = await this.api.fetchDirectory("");
-      } catch{
-        alert("일시적으로 데이터를 가져올 수 없습니다. 다시 시도해주세요.");
-      }
-      
-      // path로 펫치해서 
-      // path를 bread에 전달하고
-      // 결과를 Nodes에 전달한다.
-      this.render();
-    }
+	const nodeContainer = new NodesComponent({
+		root: this.root,
+		initState: {
+			path: this.state.path,
+			nodes: this.state.nodes,
+		},
+		onClick: async (node) => {
+			if (node.type === "DIRECTORY") {
+				try {
+					const res = await fetchDirectory(node.id);
+					this.state.path.push(node.name);
+					this.setState({
+						path: this.state.path,
+						nodes: res,
+					});
+				} catch (e) {
+					console.error(e);
+				}
+			} else if (node.type === "FILE") {
+				// imageView 모달 띄우기
+			}
+		},
+	});
+
+	this.setState = (newState) => {
+		this.state = newState;
+		breadCrumb.setState({
+			path: newState.path,
+		});
+		nodeContainer.setState({
+			path: newState.path,
+			nodes: newState.nodes,
+		});
+	};
+
+	const init = async () => {
+		try {
+			const nodes = await fetchDirectory();
+			this.setState({
+				...this.state,
+				nodes,
+			});
+		} catch (e) {
+			console.error(e);
+		}
+	};
+
+	init();
 }
