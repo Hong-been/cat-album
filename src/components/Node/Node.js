@@ -15,7 +15,6 @@ export default class NodeComponent extends Component {
 	}
 
 	render() {
-		console.log(this.state);
 		if (this.state.node.type === "FILE") {
 			this.element.innerHTML = `
             <img src="./assets/file.png" alt="사진"></img>

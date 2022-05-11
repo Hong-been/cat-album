@@ -44,31 +44,22 @@ export default class NodesComponent extends Component {
 			const prevPath = this.state.path.slice(0, -1).join("/");
 			await fetchDirectory(prevPath);
 		};
-
-		// if (this.state.path) {
-		// 	const node = new NodeComponent({
-		// 		node: null,
-		// 		onClick: handlePrevClick,
-		// 	});
-		// 	node.attachTo("afterbegin", this.element);
-		// }
 		this.element.innerHTML = "";
+
+		if (this.state.path.length > 1) {
+			const node = new NodeComponent({
+				initState: {node: nodeData},
+				onClick: this.onClick,
+			});
+			node.attachTo("beforeend", this.element);
+		}
+
 		this.state.nodes.forEach((nodeData) => {
-			if (nodeData.type === "DIRECTORY") {
-				const node = new NodeComponent({
-					initState: {node: nodeData},
-					onClick: this.onClick,
-				});
-				node.attachTo("beforeend", this.element);
-			} else if (nodeData.type === "FILE") {
-				const node = new NodeComponent({
-					initState: {node: nodeData},
-					onClick: this.onClick,
-				});
-				node.attachTo("beforeend", this.element);
-			} else {
-				throw Error("node type mismatched.");
-			}
+			const node = new NodeComponent({
+				initState: {node: nodeData},
+				onClick: this.onClick,
+			});
+			node.attachTo("beforeend", this.element);
 		});
 	}
 }
