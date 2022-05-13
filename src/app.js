@@ -7,8 +7,7 @@ import {fetchDirectory} from "./api/api.js";
 export default class App {
 	constructor(root) {
 		this.state = {
-			path: ["root"],
-			depth: [""],
+			depth: [{name: "root", id: ""}],
 			nodes: [],
 			isLoading: false,
 		};
@@ -21,13 +20,16 @@ export default class App {
 
 		this.breadCrumb = new BreadCrumbComponent({
 			root,
-			initState: {path: this.state.path},
+			initState: {depth: this.state.depth},
+			onClick: (e) => {
+				console.log(e.target);
+			},
 		});
 
 		this.nodeContainer = new NodesComponent({
 			root,
 			initState: {
-				isRoot: this.state.path.length > 1 ? false : true,
+				isRoot: this.state.depth.length > 1 ? false : true,
 				nodes: [],
 			},
 			onClick: async (node) => {
@@ -39,8 +41,7 @@ export default class App {
 
 					try {
 						const res = await fetchDirectory(node.id);
-						this.state.path.push(node.name);
-						this.state.depth.push(node.id);
+						this.state.depth.push({name: node.name, id: node.id});
 						this.setState({
 							...this.state,
 							nodes: res,
@@ -59,12 +60,11 @@ export default class App {
 						...this.state,
 						isLoading: true,
 					});
-					this.state.path.pop();
 					this.state.depth.pop();
 
 					try {
 						const res = await fetchDirectory(
-							this.state.depth[this.state.depth.length - 1]
+							this.state.depth[this.state.depth.length - 1].id
 						);
 						this.setState({
 							...this.state,
@@ -83,10 +83,10 @@ export default class App {
 
 	setState = (newState) => {
 		this.breadCrumb.setState({
-			path: newState.path,
+			depth: newState.depth,
 		});
 		this.nodeContainer.setState({
-			isRoot: newState.path.length === 1,
+			isRoot: newState.depth.length === 1,
 			nodes: newState.nodes,
 		});
 		this.loadingModal.setState({
