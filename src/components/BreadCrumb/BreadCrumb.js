@@ -10,8 +10,8 @@ export default class BreadCrumbComponent extends Component {
 
 	render() {
 		this.element.innerHTML = "";
-		this.state.depth.forEach((value) => {
-			this.element.innerHTML += `<div>${value.name}</div>`;
+		this.state.depth.forEach((value, index) => {
+			this.element.innerHTML += `<div id=${index}>${value.name}</div>`;
 		});
 	}
 }

@@ -1,7 +1,3 @@
-/*
-type 3개중에 한개로 렌더링.
-누르면 각각 다른 작업 수행.
-*/
 import Component from "../component.js";
 
 export default class NodeComponent extends Component {

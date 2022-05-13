@@ -21,8 +21,26 @@ export default class App {
 		this.breadCrumb = new BreadCrumbComponent({
 			root,
 			initState: {depth: this.state.depth},
-			onClick: (e) => {
-				console.log(e.target);
+			onClick: async (e) => {
+				this.setState({
+					...this.state,
+					isLoading: true,
+				});
+
+				const index = parseInt(e.target.id) + 1;
+				const newDepth = this.state.depth.slice(0, index);
+
+				try {
+					const nodes = await fetchDirectory(newDepth[newDepth.length - 1].id);
+					this.setState({
+						...this.state,
+						depth: newDepth,
+						nodes,
+						isLoading: false,
+					});
+				} catch (e) {
+					console.error(e);
+				}
 			},
 		});
 
@@ -40,11 +58,11 @@ export default class App {
 					});
 
 					try {
-						const res = await fetchDirectory(node.id);
+						const nodes = await fetchDirectory(node.id);
 						this.state.depth.push({name: node.name, id: node.id});
 						this.setState({
 							...this.state,
-							nodes: res,
+							nodes,
 							isLoading: false,
 						});
 					} catch (e) {
@@ -63,12 +81,12 @@ export default class App {
 					this.state.depth.pop();
 
 					try {
-						const res = await fetchDirectory(
+						const nodes = await fetchDirectory(
 							this.state.depth[this.state.depth.length - 1].id
 						);
 						this.setState({
 							...this.state,
-							nodes: res,
+							nodes,
 							isLoading: false,
 						});
 					} catch (e) {
@@ -82,6 +100,8 @@ export default class App {
 	}
 
 	setState = (newState) => {
+		this.state = newState;
+
 		this.breadCrumb.setState({
 			depth: newState.depth,
 		});
