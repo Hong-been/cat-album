@@ -31,6 +31,11 @@ export default class App {
 			initState: {isLoading: {appInitState}},
 		});
 
+		this.imageModal = new ImageModalComponent({
+			root,
+			initState: {filePath: ""},
+		});
+
 		this.breadCrumb = new BreadCrumbComponent({
 			root,
 			initState: {depth: {appInitState}},
@@ -76,13 +81,13 @@ export default class App {
 				isRoot: appInitState.depth.length > 1 ? false : true,
 				nodes: {appInitState},
 			},
-			onClick: async ({nodeId, nodeName, nodeType}) => {
-				if (nodeType === DIRECTORY) {
-					if (cache[nodeId]) {
-						this.state.depth.push({name: nodeName, id: nodeId});
+			onClick: async (node) => {
+				if (node.type === DIRECTORY) {
+					if (cache[node.id]) {
+						this.state.depth.push({name: node.name, id: node.id});
 						this.setState({
 							...this.state,
-							nodes: cache[nodeId],
+							nodes: cache[node.id],
 						});
 						return;
 					}
@@ -93,10 +98,10 @@ export default class App {
 					});
 
 					try {
-						const nodes = await fetchDirectory(nodeId);
-						cache[nodeId] = nodes;
+						const nodes = await fetchDirectory(node.id);
+						cache[node.id] = nodes;
 
-						this.state.depth.push({name: nodeName, id: nodeId});
+						this.state.depth.push({name: node.name, id: node.id});
 						this.setState({
 							...this.state,
 							nodes,
@@ -105,18 +110,18 @@ export default class App {
 					} catch (e) {
 						console.error(e);
 					}
-				} else if (nodeType === FILE) {
-					this.imageModal = new ImageModalComponent({
-						root,
-						initState: {filePath: node.filePath},
+				} else if (node.type === FILE) {
+					this.imageModal.setState({
+						filePath: node.filePath,
 					});
-				} else if (nodeType === PREV) {
-					// 뒤로 갈때는 캐쉬가 있어야 정상
+				} else if (node.type === PREV) {
 					this.state.depth.pop();
-					const id = this.state.depth[this.state.depth.length - 1].id;
+					const id =
+						this.state.depth[this.state.depth.length - 1].id === null
+							? ROOT
+							: this.state.depth[this.state.depth.length - 1].id;
 
 					if (cache[id]) {
-						this.state.depth.pop();
 						this.setState({
 							...this.state,
 							nodes: cache[id],
@@ -155,7 +160,7 @@ export default class App {
 			depth: newState.depth,
 		});
 		this.nodeContainer.setState({
-			isRoot: newState.depth.length === 1,
+			isRoot: newState.depth.length > 1 ? false : true,
 			nodes: newState.nodes,
 		});
 		this.loadingModal.setState({

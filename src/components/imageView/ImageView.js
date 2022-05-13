@@ -8,18 +8,33 @@ export default class ImageModal extends Modal {
 		super(
 			root,
 			`<div class="content">
-        <img src="${IMGAE_URL}${initState.filePath}">
+        <img class="image">
       </div>`,
 			initState
 		);
 
-		this.element.classList.add("image");
-		const modal = document.querySelector(".image");
-		modal.addEventListener("click", (e) => {
-			if (e.target === modal) this.element.remove();
+		this.element.classList.add("Modalimage");
+		this.element.style.visibility = "hidden";
+
+		const img = this.element.querySelector(".image");
+		const modal = document.querySelector(".Modalimage");
+		this.element.addEventListener("click", (e) => {
+			if (e.target === modal) {
+				this.element.style.visibility = "hidden";
+				img.setAttribute("src", "");
+			}
 		});
 		window.addEventListener("keydown", (e) => {
-			if (e.key === "Esc" || e.key === "Escape") this.element.remove();
+			if (e.key === "Esc" || e.key === "Escape") {
+				this.element.style.visibility = "hidden";
+				img.setAttribute("src", "");
+			}
 		});
+	}
+
+	render() {
+		const img = this.element.querySelector(".image");
+		img.setAttribute("src", `${IMGAE_URL}${this.state.filePath}`);
+		this.element.style.visibility = "visible";
 	}
 }

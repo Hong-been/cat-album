@@ -8,28 +8,39 @@ export default class NodesComponent extends Component {
 		root.appendChild(this.element);
 		this.element.addEventListener("click", (e) => {
 			const node = e.target.closest(".Node");
-			if (!node) return;
-
-			onClick(node.dataset);
+			const {nodeId} = node.dataset;
+			if (!nodeId) onClick({type: "PREV"});
+			else {
+				const node = this.state.nodes.find((node) => node.id === nodeId);
+				onClick(node);
+			}
 		});
-		this.onClick = onClick;
 	}
 
 	render() {
+		console.log(this.state);
 		this.element.innerHTML = "";
 
 		if (!this.state.isRoot) {
-			const node = new NodeComponent({
-				initState: {node: {type: "PREV"}},
-			});
-			node.attachTo("beforeend", this.element);
+			this.element.innerHTML += `
+					<div class="Node">
+						<img src="./assets/prev.png" alt="뒤로가기"></img>
+					</div>`;
 		}
 
 		this.state.nodes.forEach((nodeData) => {
-			const node = new NodeComponent({
-				initState: {node: nodeData},
-			});
-			node.attachTo("beforeend", this.element);
+			const {type, name, id} = nodeData;
+			if (type === "FILE" || type === "DIRECTORY") {
+				const imgPath = type === "FILE" ? "file" : "directory";
+
+				this.element.innerHTML += `
+					<div class="Node" data-node-id=${id}>
+						<img src="./assets/${imgPath}.png" alt="사진"></img>
+            <div class="title">${name}</div>
+					</div>`;
+			} else {
+				throw Error("Node type mismatched!");
+			}
 		});
 	}
 }
