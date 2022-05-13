@@ -17,20 +17,15 @@
 */
 import Component from "../component.js";
 import NodeComponent from "../Node/Node.js";
-import {fetchDirectory, fetchFile} from "../../api/api.js";
 
 export default class NodesComponent extends Component {
-	// root,nodeList,path,fetchCallback
 	constructor({root, initState, onClick}) {
 		super(`<div class="Nodes"></div>`);
-
-		this.onClick = onClick;
 		root.appendChild(this.element);
 
+		this.onClick = onClick;
 		this.state = initState;
-		// this.nodes = async () => {
-		// 	await fetchDirectory();
-		// };
+		this.setState = this.setState.bind(this);
 		this.render();
 	}
 
@@ -40,15 +35,12 @@ export default class NodesComponent extends Component {
 	}
 
 	render() {
-		const handlePrevClick = async () => {
-			const prevPath = this.state.path.slice(0, -1).join("/");
-			await fetchDirectory(prevPath);
-		};
 		this.element.innerHTML = "";
 
-		if (this.state.path.length > 1) {
+		if (!this.state.isRoot) {
+			console.log(this.state);
 			const node = new NodeComponent({
-				initState: {node: nodeData},
+				initState: {node: {type: "PREV"}},
 				onClick: this.onClick,
 			});
 			node.attachTo("beforeend", this.element);

@@ -23,6 +23,9 @@ export default class NodeComponent extends Component {
 			this.element.innerHTML = `
             <img src="./assets/directory.png" alt="파일"></img>
             <div class="title">${this.state.node.name}</div>`;
+		} else if (this.state.node.type === "PREV") {
+			this.element.innerHTML = `
+            <img src="./assets/prev.png" alt="뒤로가기"></img>`;
 		} else {
 			throw Error("Node type mismatched!");
 		}

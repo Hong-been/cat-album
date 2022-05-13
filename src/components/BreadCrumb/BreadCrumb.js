@@ -9,11 +9,11 @@ export default class BreadCrumbComponent extends Component {
 
 		root.appendChild(this.element);
 		this.state = initState;
+		this.setState = this.setState.bind(this);
 		this.render();
 	}
 
 	setState(newState) {
-		console.log(newState);
 		this.state = newState;
 		this.render();
 	}
