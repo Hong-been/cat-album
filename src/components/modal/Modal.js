@@ -1,4 +1,4 @@
-import Component from "../component.js";
+import Component from "../Component.js";
 
 export default class Modal extends Component {
 	constructor(root, contentHtml, initState) {

@@ -1,4 +1,4 @@
-import Component from "../component.js";
+import Component from "../Component.js";
 
 export default class BreadCrumbComponent extends Component {
 	constructor({root, initState, onClick}) {
