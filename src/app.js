@@ -31,14 +31,14 @@ export default class App {
 				nodes: [],
 			},
 			onClick: async (node) => {
-				try {
-					if (node.type === "DIRECTORY") {
-						this.setState({
-							...this.state,
-							isLoading: true,
-						});
-						const res = await fetchDirectory(node.id);
+				if (node.type === "DIRECTORY") {
+					this.setState({
+						...this.state,
+						isLoading: true,
+					});
 
+					try {
+						const res = await fetchDirectory(node.id);
 						this.state.path.push(node.name);
 						this.state.depth.push(node.id);
 						this.setState({
@@ -46,18 +46,23 @@ export default class App {
 							nodes: res,
 							isLoading: false,
 						});
-					} else if (node.type === "FILE") {
-						this.imageModal = new ImageModalComponent({
-							root,
-							initState: {filePath: node.filePath},
-						});
-					} else if (node.type === "PREV") {
-						this.setState({
-							...this.state,
-							isLoading: true,
-						});
-						this.state.path.pop();
-						this.state.depth.pop();
+					} catch (e) {
+						console.error(e);
+					}
+				} else if (node.type === "FILE") {
+					this.imageModal = new ImageModalComponent({
+						root,
+						initState: {filePath: node.filePath},
+					});
+				} else if (node.type === "PREV") {
+					this.setState({
+						...this.state,
+						isLoading: true,
+					});
+					this.state.path.pop();
+					this.state.depth.pop();
+
+					try {
 						const res = await fetchDirectory(
 							this.state.depth[this.state.depth.length - 1]
 						);
@@ -66,9 +71,9 @@ export default class App {
 							nodes: res,
 							isLoading: false,
 						});
+					} catch (e) {
+						console.error(e);
 					}
-				} catch (e) {
-					console.error(e);
 				}
 			},
 		});
