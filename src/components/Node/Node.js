@@ -6,8 +6,8 @@ import Component from "../component.js";
 
 export default class NodeComponent extends Component {
 	constructor({initState, onClick}) {
-		super(`<div class="Node"></div>`);
-		this.state = initState;
+		super(`<div class="Node"></div>`, initState);
+
 		this.element.addEventListener("click", () => {
 			onClick(this.state.node);
 		});

@@ -77,7 +77,6 @@ export default class App {
 	}
 
 	setState = (newState) => {
-		console.log(newState);
 		this.breadCrumb.setState({
 			path: newState.path,
 		});

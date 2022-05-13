@@ -2,18 +2,9 @@ import Component from "../component.js";
 
 export default class BreadCrumbComponent extends Component {
 	constructor({root, initState}) {
-		super(`<nav class="Breadcrumb"></nav>`);
+		super(`<nav class="Breadcrumb"></nav>`, initState);
 
 		root.appendChild(this.element);
-		this.state = initState;
-		this.setState = this.setState.bind(this);
-		this.render();
-	}
-
-	setState(newState) {
-		this.state = newState;
-		console.log(this.state);
-		this.render();
 	}
 
 	render() {

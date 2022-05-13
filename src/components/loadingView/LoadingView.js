@@ -9,16 +9,9 @@ export default class LoadingeModal extends Modal {
         <img src="./assets/nyan-cat.gif">
       </div>
       `,
+			initState,
 		});
 		this.element.classList.add("loading");
-		this.state = initState;
-		this.setState = this.setState.bind(this);
-	}
-
-	setState(newState) {
-		console.log(newState);
-		this.state = newState;
-		this.render();
 	}
 
 	render() {

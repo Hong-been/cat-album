@@ -11,7 +11,9 @@ export default class ImageModal extends Modal {
       <div class="content">
         <img src="${IMGAE_URL}${initState.filePath}">
       </div>`,
+			initState,
 		});
+
 		this.element.classList.add("image");
 		const modal = document.querySelector(".image");
 		modal.addEventListener("click", () => {
