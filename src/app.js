@@ -4,10 +4,12 @@ import ImageModalComponent from "./components/imageView/ImageView.js";
 import LoadingModalComponent from "./components/loadingView/LoadingView.js";
 import {fetchDirectory} from "./api/api.js";
 
+const cache = {};
+
 export default class App {
 	constructor(root) {
 		this.state = {
-			depth: [{name: "root", id: ""}],
+			depth: [{name: "root", id: null}],
 			nodes: [],
 			isLoading: false,
 		};
@@ -22,16 +24,29 @@ export default class App {
 			root,
 			initState: {depth: this.state.depth},
 			onClick: async (e) => {
+				const index = parseInt(e.target.id) + 1;
+				const newDepth = this.state.depth.slice(0, index);
+				const id =
+					newDepth[newDepth.length - 1].id === null
+						? "root"
+						: newDepth[newDepth.length - 1].id;
+
+				if (cache[id]) {
+					this.setState({
+						...this.state,
+						depth: newDepth,
+						nodes: cache[id],
+					});
+					return;
+				}
+
 				this.setState({
 					...this.state,
 					isLoading: true,
 				});
 
-				const index = parseInt(e.target.id) + 1;
-				const newDepth = this.state.depth.slice(0, index);
-
 				try {
-					const nodes = await fetchDirectory(newDepth[newDepth.length - 1].id);
+					const nodes = await fetchDirectory(id);
 					this.setState({
 						...this.state,
 						depth: newDepth,
@@ -51,7 +66,18 @@ export default class App {
 				nodes: [],
 			},
 			onClick: async (node) => {
+				console.log(cache);
+
 				if (node.type === "DIRECTORY") {
+					if (cache[node.id]) {
+						this.state.depth.push({name: node.name, id: node.id});
+						this.setState({
+							...this.state,
+							nodes: cache[node.id],
+						});
+						return;
+					}
+
 					this.setState({
 						...this.state,
 						isLoading: true,
@@ -59,6 +85,8 @@ export default class App {
 
 					try {
 						const nodes = await fetchDirectory(node.id);
+						cache[node.id] = nodes;
+
 						this.state.depth.push({name: node.name, id: node.id});
 						this.setState({
 							...this.state,
@@ -74,16 +102,28 @@ export default class App {
 						initState: {filePath: node.filePath},
 					});
 				} else if (node.type === "PREV") {
+					// 뒤로 갈때는 캐쉬가 있어야 정상
+					this.state.depth.pop();
+					const id = this.state.depth[this.state.depth.length - 1].id;
+
+					if (cache[id]) {
+						this.state.depth.pop();
+						this.setState({
+							...this.state,
+							nodes: cache[id],
+						});
+						return;
+					}
+
 					this.setState({
 						...this.state,
 						isLoading: true,
 					});
-					this.state.depth.pop();
 
 					try {
-						const nodes = await fetchDirectory(
-							this.state.depth[this.state.depth.length - 1].id
-						);
+						const nodes = await fetchDirectory(id);
+						cache[id] = nodes;
+
 						this.setState({
 							...this.state,
 							nodes,
@@ -117,6 +157,8 @@ export default class App {
 	init = async () => {
 		try {
 			const nodes = await fetchDirectory();
+			cache["root"] = nodes;
+
 			this.setState({
 				...this.state,
 				nodes,
