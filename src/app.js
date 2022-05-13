@@ -4,31 +4,42 @@ import ImageModalComponent from "./components/imageView/ImageView.js";
 import LoadingModalComponent from "./components/loadingView/LoadingView.js";
 import {fetchDirectory} from "./api/api.js";
 
+const ROOT = "root";
+const DIRECTORY = "DIRECTORY";
+const FILE = "FILE";
+const PREV = "PREV";
+
 const cache = {};
+const appInitState = {
+	depth: [
+		{
+			name: ROOT,
+			id: null,
+		},
+	],
+	nodes: [],
+	isLoading: false,
+};
 
 export default class App {
 	constructor(root) {
-		this.state = {
-			depth: [{name: "root", id: null}],
-			nodes: [],
-			isLoading: false,
-		};
+		this.state = appInitState;
 		this.setState = this.setState.bind(this);
 
 		this.loadingModal = new LoadingModalComponent({
 			root,
-			initState: {isLoading: this.state.isLoading},
+			initState: {isLoading: {appInitState}},
 		});
 
 		this.breadCrumb = new BreadCrumbComponent({
 			root,
-			initState: {depth: this.state.depth},
+			initState: {depth: {appInitState}},
 			onClick: async (e) => {
 				const index = parseInt(e.target.id) + 1;
 				const newDepth = this.state.depth.slice(0, index);
 				const id =
 					newDepth[newDepth.length - 1].id === null
-						? "root"
+						? ROOT
 						: newDepth[newDepth.length - 1].id;
 
 				if (cache[id]) {
@@ -62,13 +73,13 @@ export default class App {
 		this.nodeContainer = new NodesComponent({
 			root,
 			initState: {
-				isRoot: this.state.depth.length > 1 ? false : true,
-				nodes: [],
+				isRoot: appInitState.depth.length > 1 ? false : true,
+				nodes: {appInitState},
 			},
 			onClick: async (node) => {
 				console.log(cache);
 
-				if (node.type === "DIRECTORY") {
+				if (node.type === DIRECTORY) {
 					if (cache[node.id]) {
 						this.state.depth.push({name: node.name, id: node.id});
 						this.setState({
@@ -96,12 +107,12 @@ export default class App {
 					} catch (e) {
 						console.error(e);
 					}
-				} else if (node.type === "FILE") {
+				} else if (node.type === FILE) {
 					this.imageModal = new ImageModalComponent({
 						root,
 						initState: {filePath: node.filePath},
 					});
-				} else if (node.type === "PREV") {
+				} else if (node.type === PREV) {
 					// 뒤로 갈때는 캐쉬가 있어야 정상
 					this.state.depth.pop();
 					const id = this.state.depth[this.state.depth.length - 1].id;
@@ -157,7 +168,7 @@ export default class App {
 	init = async () => {
 		try {
 			const nodes = await fetchDirectory();
-			cache["root"] = nodes;
+			cache[ROOT] = nodes;
 
 			this.setState({
 				...this.state,
