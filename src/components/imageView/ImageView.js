@@ -5,12 +5,17 @@ const IMGAE_URL =
 
 export default class ImageModal extends Modal {
 	constructor({root, initState}) {
-		super(
+		super({
 			root,
-			`
+			contentHtml: `
       <div class="content">
         <img src="${IMGAE_URL}${initState.filePath}">
-      </div>`
-		);
+      </div>`,
+		});
+		this.element.classList.add("image");
+		const modal = document.querySelector(".image");
+		modal.addEventListener("click", () => {
+			this.element.remove();
+		});
 	}
 }

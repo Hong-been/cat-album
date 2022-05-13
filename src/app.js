@@ -1,28 +1,29 @@
 import NodesComponent from "./components/Nodes/Nodes.js";
 import BreadCrumbComponent from "./components/BreadCrumb/BreadCrumb.js";
 import ImageModalComponent from "./components/imageView/ImageView.js";
+import LoadingModalComponent from "./components/loadingView/LoadingView.js";
 import {fetchDirectory} from "./api/api.js";
-/**
- * 로딩처리
- * <div class="Modal Loading">
-      <div class="content">
-        <img src="./assets/nyan-cat.gif">
-      </div>
-    </div>
- */
+
 export default class App {
 	constructor(root) {
 		this.state = {
 			path: ["root"],
 			depth: [""],
 			nodes: [],
+			isLoading: false,
 		};
 		this.setState = this.setState.bind(this);
+
+		this.loadingModal = new LoadingModalComponent({
+			root,
+			initState: {isLoading: this.state.isLoading},
+		});
 
 		this.breadCrumb = new BreadCrumbComponent({
 			root,
 			initState: {path: this.state.path},
 		});
+
 		this.nodeContainer = new NodesComponent({
 			root,
 			initState: {
@@ -32,14 +33,18 @@ export default class App {
 			onClick: async (node) => {
 				try {
 					if (node.type === "DIRECTORY") {
+						this.setState({
+							...this.state,
+							isLoading: true,
+						});
 						const res = await fetchDirectory(node.id);
 
 						this.state.path.push(node.name);
 						this.state.depth.push(node.id);
 						this.setState({
-							path: this.state.path,
-							depth: this.state.depth,
+							...this.state,
 							nodes: res,
+							isLoading: false,
 						});
 					} else if (node.type === "FILE") {
 						this.imageModal = new ImageModalComponent({
@@ -47,14 +52,19 @@ export default class App {
 							initState: {filePath: node.filePath},
 						});
 					} else if (node.type === "PREV") {
+						this.setState({
+							...this.state,
+							isLoading: true,
+						});
 						this.state.path.pop();
 						this.state.depth.pop();
 						const res = await fetchDirectory(
 							this.state.depth[this.state.depth.length - 1]
 						);
 						this.setState({
-							path: this.state.path,
+							...this.state,
 							nodes: res,
+							isLoading: false,
 						});
 					}
 				} catch (e) {
@@ -67,12 +77,16 @@ export default class App {
 	}
 
 	setState = (newState) => {
+		console.log(newState);
 		this.breadCrumb.setState({
 			path: newState.path,
 		});
 		this.nodeContainer.setState({
 			isRoot: newState.path.length === 1,
 			nodes: newState.nodes,
+		});
+		this.loadingModal.setState({
+			isLoading: newState.isLoading,
 		});
 	};
 

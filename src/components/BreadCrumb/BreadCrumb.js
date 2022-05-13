@@ -1,6 +1,3 @@
-/*
-
-*/
 import Component from "../component.js";
 
 export default class BreadCrumbComponent extends Component {
@@ -15,6 +12,7 @@ export default class BreadCrumbComponent extends Component {
 
 	setState(newState) {
 		this.state = newState;
+		console.log(this.state);
 		this.render();
 	}
 
