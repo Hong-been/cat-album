@@ -1,7 +1,15 @@
 import NodesComponent from "./components/Nodes/Nodes.js";
 import BreadCrumbComponent from "./components/BreadCrumb/BreadCrumb.js";
+import ImageModalComponent from "./components/imageView/ImageView.js";
 import {fetchDirectory} from "./api/api.js";
-
+/**
+ * 로딩처리
+ * <div class="Modal Loading">
+      <div class="content">
+        <img src="./assets/nyan-cat.gif">
+      </div>
+    </div>
+ */
 export default class App {
 	constructor(root) {
 		this.state = {
@@ -34,7 +42,10 @@ export default class App {
 							nodes: res,
 						});
 					} else if (node.type === "FILE") {
-						console.log("이미지 모달");
+						this.imageModal = new ImageModalComponent({
+							root,
+							initState: {filePath: node.filePath},
+						});
 					} else if (node.type === "PREV") {
 						this.state.path.pop();
 						this.state.depth.pop();
