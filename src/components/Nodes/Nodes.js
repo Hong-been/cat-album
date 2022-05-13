@@ -1,5 +1,4 @@
 import Component from "../Component.js";
-import NodeComponent from "../Node/Node.js";
 
 export default class NodesComponent extends Component {
 	constructor({root, initState, onClick}) {
@@ -18,7 +17,6 @@ export default class NodesComponent extends Component {
 	}
 
 	render() {
-		console.log(this.state);
 		this.element.innerHTML = "";
 
 		if (!this.state.isRoot) {
