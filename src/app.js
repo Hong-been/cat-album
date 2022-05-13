@@ -76,15 +76,13 @@ export default class App {
 				isRoot: appInitState.depth.length > 1 ? false : true,
 				nodes: {appInitState},
 			},
-			onClick: async (node) => {
-				console.log(cache);
-
-				if (node.type === DIRECTORY) {
-					if (cache[node.id]) {
-						this.state.depth.push({name: node.name, id: node.id});
+			onClick: async ({nodeId, nodeName, nodeType}) => {
+				if (nodeType === DIRECTORY) {
+					if (cache[nodeId]) {
+						this.state.depth.push({name: nodeName, id: nodeId});
 						this.setState({
 							...this.state,
-							nodes: cache[node.id],
+							nodes: cache[nodeId],
 						});
 						return;
 					}
@@ -95,10 +93,10 @@ export default class App {
 					});
 
 					try {
-						const nodes = await fetchDirectory(node.id);
-						cache[node.id] = nodes;
+						const nodes = await fetchDirectory(nodeId);
+						cache[nodeId] = nodes;
 
-						this.state.depth.push({name: node.name, id: node.id});
+						this.state.depth.push({name: nodeName, id: nodeId});
 						this.setState({
 							...this.state,
 							nodes,
@@ -107,12 +105,12 @@ export default class App {
 					} catch (e) {
 						console.error(e);
 					}
-				} else if (node.type === FILE) {
+				} else if (nodeType === FILE) {
 					this.imageModal = new ImageModalComponent({
 						root,
 						initState: {filePath: node.filePath},
 					});
-				} else if (node.type === PREV) {
+				} else if (nodeType === PREV) {
 					// 뒤로 갈때는 캐쉬가 있어야 정상
 					this.state.depth.pop();
 					const id = this.state.depth[this.state.depth.length - 1].id;
